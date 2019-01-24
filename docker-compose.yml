@@ -1,0 +1,36 @@
+version: "3"
+services:
+  pihole:
+    image: pihole/pihole:4.1.1_armhf
+    dns:
+      - 127.0.0.1
+      - 1.1.1.1
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "80:80/tcp"
+    cap_add:
+      - NET_ADMIN
+    network_mode: "host"
+    environment:
+      # enter your docker host IP here
+      ServerIP: ${ServerIP}
+      # IPv6 Address if your network supports it
+      ServerIPv6: ${ServerIP6}
+      DNS1: 127.0.0.1#5300
+      DNS2: 127.0.0.1#5300
+      DNSSEC: "true"
+      DNSMASQ_LISTENING: "local"
+      WEBPASSWORD: "${WEBPASSWORD}"
+    volumes:
+      - './config-pihole:/etc/pihole/'
+      - './config-dnsmasq:/etc/dnsmasq.d/'
+    restart: always
+  dnscrypt-proxy:
+    build: .
+    image: dnscrypt-proxy
+    network_mode: "host"
+    volumes:
+     - './config-dnscrypt-proxy:/config'
+    restart: always
+
