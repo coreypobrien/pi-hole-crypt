@@ -14,4 +14,4 @@ echo "ServerIP  : ${ServerIP}"
 read -p "Press any key to continue..."
 
 export WEBPASSWORD ServerIPv6 ServerIP
-docker-compose up -d
+docker-compose up -d --remove-orphans

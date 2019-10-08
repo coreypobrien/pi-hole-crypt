@@ -1,4 +1,4 @@
-version: "3"
+version: "3.4"
 services:
   pihole:
     image: pihole/pihole:4.3.2-1_armhf
@@ -17,8 +17,8 @@ services:
       ServerIP: ${ServerIP}
       # IPv6 Address if your network supports it
       ServerIPv6: ${ServerIPv6}
-      DNS1: 127.0.0.1#5300
-      DNS2: 127.0.0.1#5300
+      DNS1: 127.0.0.1#5053
+      DNS2: 127.0.0.1#5053
       DNSSEC: "true"
       DNSMASQ_LISTENING: "local"
       WEBPASSWORD: "${WEBPASSWORD}"
@@ -26,11 +26,16 @@ services:
       - './config-pihole:/etc/pihole/'
       - './config-dnsmasq:/etc/dnsmasq.d/'
     restart: always
-  dnscrypt-proxy:
-    build: .
-    image: dnscrypt-proxy
+    healthcheck:
+      test: dig google.com @${ServerIP} +notcp && dig google.com @${ServerIPv6} +notcp
+      interval: 60s
+      timeout: 2s
+      retries: 3
+      start_period: 60s
+  cloudflared:
+    image: crazymax/cloudflared@sha256:c2213c385ea6e09405669a05f0f35523001a03a1fd7bbee222fdb8554514f810
     network_mode: "host"
-    volumes:
-     - './config-dnscrypt-proxy:/config'
-    restart: always
+    environment:
+      TUNNEL_DNS_PORT: 5053
+      TUNNEL_DNS_UPSTREAM: "https://1.1.1.1/dns-query,https://1.0.0.1/dns-query"
 
