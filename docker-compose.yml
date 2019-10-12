@@ -35,6 +35,7 @@ services:
   cloudflared:
     image: crazymax/cloudflared@sha256:c2213c385ea6e09405669a05f0f35523001a03a1fd7bbee222fdb8554514f810
     network_mode: "host"
+    restart: always
     environment:
       TUNNEL_DNS_PORT: 5053
       TUNNEL_DNS_UPSTREAM: "https://1.1.1.1/dns-query,https://1.0.0.1/dns-query"
