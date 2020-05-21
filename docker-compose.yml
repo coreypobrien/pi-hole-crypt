@@ -1,7 +1,7 @@
 version: "3.4"
 services:
   pihole:
-    image: pihole/pihole:v4.4-armhf
+    image: pihole/pihole:v5.0-armhf
     dns:
       - 127.0.0.1
       - 1.1.1.1
@@ -33,7 +33,7 @@ services:
       retries: 3
       start_period: 60s
   cloudflared:
-    image: crazymax/cloudflared@sha256:c2213c385ea6e09405669a05f0f35523001a03a1fd7bbee222fdb8554514f810
+    image: crazymax/cloudflared@sha256:b635e474853a54372b78edf406617898d97b9827d4703953d75cf51ccb9cc616
     network_mode: "host"
     restart: always
     environment:
