@@ -28,10 +28,12 @@ services:
     restart: always
     healthcheck:
       test: dig google.com @${ServerIP} +notcp && dig google.com @${ServerIPv6} +notcp
-      interval: 60s
+      interval: 15s
       timeout: 2s
       retries: 3
       start_period: 60s
+    labels:
+      autoheal: true
   cloudflared:
     image: crazymax/cloudflared@sha256:a560bfec5d243839c8dbc4d3ae3c63f7e33bcd70ba2b62b68b0a67ea5ed61dd7
     network_mode: "host"
@@ -39,4 +41,17 @@ services:
     environment:
       TUNNEL_DNS_PORT: 5053
       TUNNEL_DNS_UPSTREAM: "https://1.1.1.1/dns-query,https://1.0.0.1/dns-query"
+    healthcheck:
+      test: test $$(wget -qO - http://127.0.0.1:49312/healthcheck) = OK
+      interval: 5s
+      timeout: 1s
+      retries: 10
+      start_period: 15s
+    labels:
+      autoheal: true
+  autoheal:
+    image: pschmitt/autoheal:latest
+    restart: always
+    volumes:
+      - '/var/run/docker.sock:/var/run/docker.sock'
 
