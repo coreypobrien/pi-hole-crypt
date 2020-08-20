@@ -33,7 +33,7 @@ services:
       retries: 3
       start_period: 60s
     labels:
-      autoheal: true
+      autoheal: "true"
   cloudflared:
     image: crazymax/cloudflared@sha256:a560bfec5d243839c8dbc4d3ae3c63f7e33bcd70ba2b62b68b0a67ea5ed61dd7
     network_mode: "host"
@@ -48,7 +48,7 @@ services:
       retries: 10
       start_period: 15s
     labels:
-      autoheal: true
+      autoheal: "true"
   autoheal:
     image: pschmitt/autoheal:latest
     restart: always
