@@ -1,7 +1,7 @@
 version: "3.4"
 services:
   pihole:
-    image: pihole/pihole:v5.1.2-armhf-buster
+    image: pihole/pihole:v5.2-armhf-buster
     dns:
       - 127.0.0.1
       - 1.1.1.1
@@ -22,6 +22,7 @@ services:
       DNSSEC: "true"
       DNSMASQ_LISTENING: "local"
       WEBPASSWORD: "${WEBPASSWORD}"
+      SKIPGRAVITYONBOOT: "true"
     volumes:
       - './config-pihole:/etc/pihole/'
       - './config-dnsmasq:/etc/dnsmasq.d/'
@@ -35,9 +36,11 @@ services:
     labels:
       autoheal: "true"
   cloudflared:
-    image: crazymax/cloudflared@sha256:a560bfec5d243839c8dbc4d3ae3c63f7e33bcd70ba2b62b68b0a67ea5ed61dd7
-    network_mode: "host"
+    image: crazymax/cloudflared@sha256:c76bf1d27bbee3856808b59330487c5a823fe8bfc994f69622a09266bbaba653
     restart: always
+    ports:
+      - "5053:5053"
+      - "5053:5053/udp"
     environment:
       TUNNEL_DNS_PORT: 5053
       TUNNEL_DNS_UPSTREAM: "https://1.1.1.1/dns-query,https://1.0.0.1/dns-query"
