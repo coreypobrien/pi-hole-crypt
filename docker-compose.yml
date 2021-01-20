@@ -1,7 +1,7 @@
 version: "3.4"
 services:
   pihole:
-    image: pihole/pihole:v5.2-armhf-buster
+    image: pihole/pihole:v5.5.1-armhf-buster
     dns:
       - 127.0.0.1
       - 1.1.1.1
