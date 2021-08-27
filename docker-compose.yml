@@ -1,7 +1,7 @@
 version: "3.4"
 services:
   pihole:
-    image: pihole/pihole:v5.8-armhf-buster
+    image: pihole/pihole:v5.8.1-armhf-buster
     dns:
       - 127.0.0.1
       - 1.1.1.1
@@ -36,7 +36,7 @@ services:
     labels:
       autoheal: "true"
   cloudflared:
-    image: crazymax/cloudflared@sha256:5398394acf718e6d51873d820134f107d4811be4ec2e7d5daf66784d02d2e432
+    image: crazymax/cloudflared@sha256:6a6101ad832dbc3f4cf48517885de3dee1c941444cb554393850f4a9e6deb981
     restart: always
     ports:
       - "5053:5053"
@@ -53,7 +53,7 @@ services:
     labels:
       autoheal: "true"
   autoheal:
-    image: pschmitt/autoheal:latest
+    image: pschmitt/autoheal@sha256:3b23c7f0be4bf939961ebd5eaec6f08b99775f5b0587df49093ac39241b9c25a
     restart: always
     volumes:
       - '/var/run/docker.sock:/var/run/docker.sock'
