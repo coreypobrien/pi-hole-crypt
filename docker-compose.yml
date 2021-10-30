@@ -1,7 +1,7 @@
 version: "3.4"
 services:
   pihole:
-    image: pihole/pihole:2021.09-armhf-buster
+    image: pihole/pihole:2021.10.1
     dns:
       - 127.0.0.1
       - 1.1.1.1
@@ -36,7 +36,7 @@ services:
     labels:
       autoheal: "true"
   cloudflared:
-    image: crazymax/cloudflared@sha256:6a6101ad832dbc3f4cf48517885de3dee1c941444cb554393850f4a9e6deb981
+    image: crazymax/cloudflared@sha256:0d2499f320d9e1ca01e8b53c6fa429c52bb5b09746c3b5daa3f8beaef05fb564
     restart: always
     ports:
       - "5053:5053"
