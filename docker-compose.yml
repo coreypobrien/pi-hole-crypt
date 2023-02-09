@@ -1,7 +1,7 @@
 version: "3.4"
 services:
   pihole:
-    image: pihole/pihole:2022.04.3
+    image: pihole/pihole:2023.01.10
     dns:
       - 127.0.0.1
       - 1.1.1.1
@@ -36,7 +36,7 @@ services:
     labels:
       autoheal: "true"
   cloudflared:
-    image: crazymax/cloudflared@sha256:de633b576ffb7a5474c37a26d1326c8358a12a06353b168bb48d63eeb39635e9
+    image: crazymax/cloudflared@sha256:d17e7735e909b3e201be777e38fa778733599ce39e37d9d6575be427c90fcfdf
     restart: always
     ports:
       - "5053:5053"
