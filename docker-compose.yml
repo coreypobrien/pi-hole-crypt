@@ -1,7 +1,7 @@
 version: "3.4"
 services:
   pihole:
-    image: pihole/pihole:2024.03.2
+    image: pihole/pihole:2024.07.0
     dns:
       - 127.0.0.1
       - 1.1.1.1
@@ -14,9 +14,9 @@ services:
     network_mode: "host"
     environment:
       # enter your docker host IP here
-      ServerIP: ${ServerIP}
+      TestServerIP: ${ServerIP}
       # IPv6 Address if your network supports it
-      ServerIPv6: ${ServerIPv6}
+      TestServerIPv6: ${ServerIPv6}
       DNS1: 127.0.0.1#5053
       DNS2: 127.0.0.1#5053
       DNSSEC: "true"
@@ -28,7 +28,7 @@ services:
       - './config-dnsmasq:/etc/dnsmasq.d/'
     restart: always
     healthcheck:
-      test: dig google.com @${ServerIP} +notcp && dig google.com @${ServerIPv6} +notcp
+      test: dig google.com @${TestServerIP} +notcp && dig google.com @${TestServerIPv6} +notcp
       interval: 15s
       timeout: 2s
       retries: 3
