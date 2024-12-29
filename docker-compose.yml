@@ -13,10 +13,6 @@ services:
       - NET_ADMIN
     network_mode: "host"
     environment:
-      # enter your docker host IP here
-      TestServerIP: ${ServerIP}
-      # IPv6 Address if your network supports it
-      TestServerIPv6: ${ServerIPv6}
       DNS1: 127.0.0.1#5053
       DNS2: 127.0.0.1#5053
       DNSSEC: "true"
@@ -28,7 +24,7 @@ services:
       - './config-dnsmasq:/etc/dnsmasq.d/'
     restart: always
     healthcheck:
-      test: dig google.com @${TestServerIP} +notcp && dig google.com @${TestServerIPv6} +notcp
+      test: dig google.com @${ServerIP} +notcp && dig google.com @${ServerIPv6} +notcp
       interval: 15s
       timeout: 2s
       retries: 3
