@@ -1,0 +1,8 @@
+secrets/
+.settings
+config-certbot/
+config-pihole/
+
+# ignore everything in config-dnsmasq/ except 02-dnscrypt.conf
+config-dnsmasq/*
+!config-dnsmasq/02-dnscrypt.conf
