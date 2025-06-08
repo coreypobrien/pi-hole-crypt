@@ -2,9 +2,8 @@
 
 set -eo pipefail
 
-# Get the web password if there isn't one specified in seecrets/webpassword
-[ -f secrets/webpassword ] && WEBPASSWORD=$(cat secrets/webpassword)
-[ -z "$WEBPASSWORD" ] && read -s -p "Web Password:" WEBPASSWORD
+# Error if there isn't a secrets/webpassword file
+[ ! -f secrets/webpassword ] && echo "Error: secrets/webpassword file not found!" && exit 1
 
 # Read non-secrets from .settings
 [ -f .settings ] && source .settings
@@ -49,5 +48,5 @@ echo "ServerIPv6: ${ServerIPv6}"
 echo "ServerIP  : ${ServerIP}"
 read -p "Press any key to continue..."
 
-export WEBPASSWORD ServerIPv6 ServerIP DOMAIN CLOUDFLARE_EMAIL
+export ServerIPv6 ServerIP DOMAIN CLOUDFLARE_EMAIL
 docker compose up -d --remove-orphans

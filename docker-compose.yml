@@ -1,6 +1,6 @@
 services:
   pihole:
-    image: pihole/pihole:2024.07.0
+    image: pihole/pihole:2025.06.1
     dns:
       - 127.0.0.1
       - 1.1.1.1
@@ -10,17 +10,22 @@ services:
       - "80:80/tcp"
     cap_add:
       - NET_ADMIN
+      - SYS_NICE
+      - SYS_TIME
     network_mode: "host"
     environment:
-      DNS1: 127.0.0.1#5053
-      DNS2: 127.0.0.1#5053
-      DNSSEC: "true"
-      DNSMASQ_LISTENING: "local"
-      WEBPASSWORD: "${WEBPASSWORD}"
-      SKIPGRAVITYONBOOT: "true"
+      FTLCONF_dns_upstreams: 127.0.0.1#5053;127.0.0.1#5053
+      FTLCONF_dns_dnssec: "true"
+      FTLCONF_dns_listeningMode: "local"
+      FTLCONF_misc_dnsmasq_lines: "proxy-dnssec"
+      FTLCONF_database_maxDBdays: 30
+      FTLCONF_dns_domainNeeded: "true"
+      FTLCONF_dns_bogusPriv: "true"
+      WEBPASSWORD_FILE: pihole_webpasswd
+    secrets:
+      - pihole_webpassword
     volumes:
       - './config-pihole:/etc/pihole/'
-      - './config-dnsmasq:/etc/dnsmasq.d/'
     restart: always
     healthcheck:
       test: dig google.com @${ServerIP} +notcp && dig google.com @${ServerIPv6} +notcp
@@ -31,7 +36,7 @@ services:
     labels:
       autoheal: "true"
   cloudflared:
-    image: crazymax/cloudflared@sha256:494a58d5a9d3aa45af33a84a5b2091270dc3bc734f9d5b9ac0cbf18f5b7a66a5
+    image: crazymax/cloudflared@sha256:cbca5625b5e53cb2ff7525a6d84e685182c0e25ae9436ac4939760e81802c344
     restart: always
     ports:
       - "5053:5053"
@@ -96,3 +101,5 @@ services:
 secrets:
   cloudflare_api_token_ini:
     file: secrets/certbot-cloudflare.ini
+  pihole_webpassword:
+    file: secrets/webpassword
