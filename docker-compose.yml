@@ -1,6 +1,6 @@
 services:
   pihole:
-    image: pihole/pihole:2025.06.1
+    image: pihole/pihole:2025.06.2
     dns:
       - 127.0.0.1
       - 1.1.1.1
@@ -21,11 +21,15 @@ services:
       FTLCONF_database_maxDBdays: 30
       FTLCONF_dns_domainNeeded: "true"
       FTLCONF_dns_bogusPriv: "true"
+      FTLCONF_webserver_tls_cert: /combined/${DOMAIN}/tls.pem
+      FTLCONF_webserver_domain: ${DOMAIN}
+      FTLCONF_dns_hostRecord: "pi.hole,${ServerIP},${ServerIPv6}"
       WEBPASSWORD_FILE: pihole_webpasswd
     secrets:
       - pihole_webpassword
     volumes:
-      - './config-pihole:/etc/pihole/'
+      - ./config-pihole:/etc/pihole/
+      - certs-combined:/combined:ro
     restart: always
     healthcheck:
       test: dig google.com @${ServerIP} +notcp && dig google.com @${ServerIPv6} +notcp
@@ -35,6 +39,9 @@ services:
       start_period: 60s
     labels:
       autoheal: "true"
+    depends_on:
+      cert-combiner:
+        condition: service_healthy
   cloudflared:
     image: crazymax/cloudflared@sha256:cbca5625b5e53cb2ff7525a6d84e685182c0e25ae9436ac4939760e81802c344
     restart: always
@@ -83,23 +90,61 @@ services:
             --email ${CLOUDFLARE_EMAIL};
           sleep 86400;
         done
-  ghostunnel:
-    image: ghostunnel/ghostunnel:v1.8.3
+  cert-combiner:
+    image: alpine
+    entrypoint: /bin/sh
+    command:
+      - -c
+      - |
+        while true; do
+          COMBINED=/combined/${DOMAIN}/tls.pem
+          PRIVKEY=/certs/cfg/live/${DOMAIN}/privkey.pem
+          FULLCHAIN=/certs/cfg/live/${DOMAIN}/fullchain.pem
+          mkdir -p /combined/${DOMAIN}
+          NEWSUM="$$(md5sum $$PRIVKEY $$FULLCHAIN)"
+          OLDSUM_FILE="/combined/${DOMAIN}/.checksum"
+
+          if [ ! -f "$$COMBINED" ] || [ "$$NEWSUM" != "$$(cat $$OLDSUM_FILE 2>/dev/null)" ]; then
+            echo "[combiner] Detected change. Rebuilding cert."
+            cat $$PRIVKEY $$FULLCHAIN > $$COMBINED && chmod 644 $$COMBINED
+            echo "$$NEWSUM" > $$OLDSUM_FILE
+          fi
+
+          sleep 3600
+        done
+    environment:
+      - DOMAIN=${DOMAIN}
+    volumes:
+      - ./config-certbot:/certs:ro
+      - certs-combined:/combined
+    restart: always
+    healthcheck:
+      test: ["CMD", "sh", "-c", "test -f /combined/${DOMAIN}/tls.pem"]
+      interval: 30s
+      timeout: 3s
+      retries: 10
+      start_period: 3s
+
+
+  stunnel:
+    image: gsmlg/stunnel:latest
     network_mode: "host"
     volumes:
-      - ./config-certbot:/certs
+      - ./config-certbot:/certs:ro
+      - ./config-stunnel:/etc/stunnel
     environment:
-      - DOMAIN
-    command:
-      - server
-      - --listen=0.0.0.0:853
-      - --target=localhost:53
-      - --cert=/certs/cfg/live/${DOMAIN}/fullchain.pem
-      - --key=/certs/cfg/live/${DOMAIN}/privkey.pem
-      - --disable-authentication
+      - DOMAIN=${DOMAIN}
+    entrypoint: /etc/stunnel/entrypoint.sh
 
 secrets:
   cloudflare_api_token_ini:
     file: secrets/certbot-cloudflare.ini
   pihole_webpassword:
     file: secrets/webpassword
+
+volumes:
+  certs-combined:
+    driver: local
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
