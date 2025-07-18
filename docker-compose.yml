@@ -1,6 +1,6 @@
 services:
   pihole:
-    image: pihole/pihole:2025.06.2
+    image: pihole/pihole:2025.07.1
     dns:
       - 127.0.0.1
       - 1.1.1.1
